@@ -9,6 +9,7 @@ import {
   saveGame,
   loadGameInfo,
   getEvolveBoard,
+  initGame,
 } from "@/app/api";
 
 const speedMs = 200;
@@ -28,12 +29,19 @@ export default function Home() {
   const initGameWithRandom = () => initiateGame(true);
   const initGameWithEmpty = () => initiateGame(false);
 
-  const initiateGame = (useRandomCells = false) => {
-    const livingCells = useRandomCells
-      ? generateLivingCells(rows, cols, true)
-      : generateLivingCells(rows, cols, false);
+  // const initiateGame = (useRandomCells = false) => {
+  //   const livingCells = useRandomCells
+  //     ? generateLivingCells(rows, cols, true)
+  //     : generateLivingCells(rows, cols, false);
+  //   setErrorMsg("");
+  //   setLivingCells(livingCells);
+  // };
+
+  const initiateGame = async (useRandomCells = false) => {
+    const { livingCells } = await initGame(rows, cols, useRandomCells);
+    const livingCellsSet = new Set<string>(livingCells);
     setErrorMsg("");
-    setLivingCells(livingCells);
+    setLivingCells(livingCellsSet);
   };
 
   const evolveBoard = useCallback(async () => {

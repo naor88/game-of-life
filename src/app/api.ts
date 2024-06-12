@@ -39,6 +39,32 @@ export const saveGame = async (
   }
 };
 
+export const initGame = async (
+  rows: number,
+  cols: number,
+  useRandom: boolean
+) => {
+  try {
+    const response = await fetch(`${SERVER_BASE_URL}/api/init`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        rows,
+        cols,
+        useRandom,
+      }),
+    });
+    if (response.status === 200) {
+      return await response.json();
+    }
+    throw new Error(`response status: ${response.status}`);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const loadGameInfo = async (savedTS: string) => {
   try {
     const response = await fetch(`${SERVER_BASE_URL}/api/load`, {
