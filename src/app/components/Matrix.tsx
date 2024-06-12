@@ -1,25 +1,65 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef } from "react";
+import { generateMatrixKey } from "../../utiles";
 
 interface MatrixProps {
-  data: boolean[][];
+  livingCells: Set<string>;
+  rows: number;
+  cols: number;
 }
+const cellSize = 2;
+const cellGap = 1;
 
-const Matrix: React.FC<MatrixProps> = ({ data }) => {
+const cellHeight = cellSize + cellGap;
+const cellWeight = cellSize + cellGap;
+
+export const Matrix: React.FC<MatrixProps> = ({ livingCells, rows, cols }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    livingCells.forEach((key) => {
+      const [row, col] = key.split(",").map(Number);
+      ctx.fillStyle = "yellow";
+      ctx.fillRect(
+        col * (cellSize + cellGap),
+        row * (cellSize + cellGap),
+        cellSize,
+        cellSize
+      );
+    });
+
+    // Fill non-living cells
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const key = generateMatrixKey(row, col);
+        if (!livingCells.has(key)) {
+          ctx.fillStyle = "black";
+          ctx.fillRect(
+            col * (cellSize + cellGap),
+            row * (cellSize + cellGap),
+            cellSize,
+            cellSize
+          );
+        }
+      }
+    }
+  }, [livingCells, rows, cols]);
+
   return (
-    <table className="h-5/6 w-5/6">
-      <tbody className="border-separate border-spacing-2">
-        {data.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, cellIndex) => (
-              <td
-                className={`border border-black rounded-xl ${cell ? "bg-yellow-300" : "bg-black"}`}
-                key={cellIndex}
-              ></td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <canvas
+      className="flex flex-row justify-center"
+      ref={canvasRef}
+      width={cols * cellHeight}
+      height={rows * cellWeight}
+      style={{ border: "1px solid black" }}
+    />
   );
 };
 
