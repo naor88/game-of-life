@@ -1,113 +1,168 @@
-import Image from "next/image";
+"use client";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Matrix from "./components/Matrix";
+
+const calcLivingNeighbors = (
+  board: boolean[][],
+  row: number,
+  col: number,
+  totalRows: number,
+  totalCols: number
+) => {
+  let liveNeighbors = 0;
+  // check for the row before
+  if (row > 0) {
+    if (col > 0) {
+      if (board[row - 1][col - 1]) liveNeighbors++;
+    }
+    if (board[row - 1][col]) liveNeighbors++;
+    if (col < totalCols - 1) {
+      if (board[row - 1][col + 1]) liveNeighbors++;
+    }
+  }
+  //check at the same row
+  if (col > 0) {
+    if (board[row][col - 1]) liveNeighbors++;
+  }
+  if (col < totalCols - 1) {
+    if (board[row][col + 1]) liveNeighbors++;
+  }
+  // check for the row after
+  if (row < totalRows - 1) {
+    if (col > 0) {
+      if (board[row + 1][col - 1]) liveNeighbors++;
+    }
+    if (board[row + 1][col]) liveNeighbors++;
+    if (col < totalCols - 1) {
+      if (board[row + 1][col + 1]) liveNeighbors++;
+    }
+  }
+
+  return liveNeighbors;
+};
 
 export default function Home() {
+  const [error, setError] = useState("");
+  const [isAuto, setIsAuto] = useState(false);
+  const [rows, setRows] = useState(0);
+  const [cols, setCols] = useState(0);
+
+  const rowInputRef = useRef<HTMLInputElement>(null);
+  const columnsInputRef = useRef<HTMLInputElement>(null);
+
+  const [board, setBoard] = useState<Array<Array<boolean>>>([]);
+
+  const generateRandomMatrix = (rows: number, cols: number): boolean[][] => {
+    const matrix = [];
+    for (let i = 0; i < rows; i++) {
+      const row = [];
+      for (let j = 0; j < cols; j++) {
+        row.push(Math.random() > 0.5 ? true : false);
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  };
+
+  const generateMatrix = <T,>(
+    rows: number,
+    cols: number,
+    initValue: T
+  ): T[][] => {
+    const matrix = [];
+    for (let i = 0; i < rows; i++) {
+      const row = [];
+      for (let j = 0; j < cols; j++) {
+        row.push(initValue);
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  };
+
+  const initiateGame = () => {
+    if (!rowInputRef?.current?.value || +rowInputRef.current.value < 1) {
+      return setError("Rows must be integer value bigger than 0");
+    }
+    if (
+      !columnsInputRef?.current?.value ||
+      +columnsInputRef.current.value < 1
+    ) {
+      return setError("Columns must be integer value bigger than 0");
+    }
+    const rows = +rowInputRef.current.value;
+    const cols = +columnsInputRef.current.value;
+    const newBoard = generateRandomMatrix(rows, cols);
+    setRows(rows);
+    setCols(cols);
+    setBoard(newBoard);
+  };
+
+  const evolveBoard = useCallback(() => {
+    const evolveBoard = generateMatrix(rows, cols, false);
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const livingNeighbors = calcLivingNeighbors(board, i, j, rows, cols);
+        if (board[i][j] && livingNeighbors < 2) {
+          //check for Rule 1
+          evolveBoard[i][j] = false; // under-population cause dies
+        } else if (board[i][j] && [2, 3].includes(livingNeighbors)) {
+          // check for Rule 2
+          evolveBoard[i][j] = true; // regular-population keep living
+        } else if (board[i][j] && livingNeighbors > 3) {
+          // check for Rule 3
+          evolveBoard[i][j] = false; // over-population cause dies
+        } else if (board[i][j] == false && livingNeighbors == 3) {
+          // check for Rule 4
+          evolveBoard[i][j] = true; // reproducing cause live
+        } else {
+          evolveBoard[i][j] = board[i][j];
+        }
+      }
+    }
+    setBoard(evolveBoard);
+  }, [rows, cols, board]);
+
+  useEffect(() => {
+    if (!isAuto) return;
+
+    const timeoutId = setTimeout(() => evolveBoard(), 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [isAuto, evolveBoard]);
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex flex-col items-center h-screen w-screen">
+      <div>
+        <h1 className="flex justify-center">Game Of Life</h1>
+        {/* inputs */}
+        <div className="my-3 flex flex-row gap-6 justify-center leading-10">
+          <div className="flex flex-row gap-3">
+            <label htmlFor="">Rows</label>
+            <input type="number" ref={rowInputRef} />
+          </div>
+          <div className="flex flex-row gap-3">
+            <label htmlFor="">Columns</label>
+            <input type="number" ref={columnsInputRef} />
+          </div>
+          <button className="btn btn-primary" onClick={initiateGame}>
+            Start
+          </button>
+          <button className="btn btn-outline" onClick={evolveBoard}>
+            Next Gen
+          </button>
+          <button
+            className="btn btn-outline"
+            onClick={() => setIsAuto((prevState) => !prevState)}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            {isAuto ? "Stop" : "Play"}
+          </button>
         </div>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      {/* board */}
+      {error ? <div>Error: {error}</div> : <Matrix data={board} />}
+    </div>
   );
 }
