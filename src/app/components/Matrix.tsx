@@ -7,8 +7,8 @@ interface MatrixProps {
   rows: number;
   cols: number;
 }
-const cellSize = 10;
-const cellGap = 2;
+const cellSize = 5;
+const cellGap = 1;
 
 const cellHeight = cellSize + cellGap;
 const cellWeight = cellSize + cellGap;
@@ -75,7 +75,7 @@ export const Matrix: React.FC<MatrixProps> = ({
 
   return (
     <canvas
-      className="flex flex-row justify-center my-5"
+      className="flex flex-row justify-center my-5 cursor-pointer"
       ref={canvasRef}
       width={cols * cellHeight}
       height={rows * cellWeight}

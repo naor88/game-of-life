@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { generateMatrixKey } from "@/utils";
 import { Matrix } from "@/app/components/Matrix";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 
 import {
   getAllSavedGames,
@@ -11,6 +9,9 @@ import {
   getEvolveBoard,
   initGame,
 } from "@/app/api";
+import { ManageGamsStats } from "@/app/components/ManageGameState";
+import { InfoTooltip } from "@/app/components/InfoTooltip";
+import { ErrorAlert } from "@/app/components/ErrorAlert";
 
 const speedMs = 200;
 const initMatrixSize = 50;
@@ -28,7 +29,6 @@ export default function Home() {
 
   const initGameWithRandom = () => initiateGame(true);
   const initGameWithEmpty = () => initiateGame(false);
-
 
   const initiateGame = async (useRandomCells = false) => {
     const { livingCells } = await initGame(rows, cols, useRandomCells);
@@ -89,6 +89,23 @@ export default function Home() {
     }
   };
 
+  const saveGameState = async () => {
+    try {
+      await saveGame(rows, cols, livingCells);
+      setSuccessMsg("Game State Saved Successfully!");
+      await fetchAllSavedGames();
+    } catch (error) {
+      setErrorMsg("error: " + error);
+    }
+  };
+
+  const loadGameState = async (gameTS: string) => {
+    const { livingCells, rows, cols } = await loadGameInfo(gameTS);
+    setCols(cols);
+    setRows(rows);
+    setLivingCells(new Set(livingCells));
+  };
+
   useEffect(() => {
     const abortController = new AbortController();
     fetchAllSavedGames();
@@ -119,7 +136,7 @@ export default function Home() {
           </h1>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="my-3 mx-auto p-3 flex flex-row gap-6 justify-center leading-10 border border-white rounded-xl max-w-fit">
+          <div className="my-3 mx-auto p-2 flex flex-row gap-6 justify-center leading-10 border border-white rounded-xl max-w-fit">
             <div className="flex flex-row gap-3 items-center">
               <label htmlFor="rows">Number of Board Rows</label>
               <input
@@ -149,6 +166,7 @@ export default function Home() {
         </form>
 
         <div className="flex flex-row justify-around max-w-fit mx-auto">
+          <InfoTooltip text="Click on a board cell for set the initiate state" />
           <button
             className="btn btn-outline btn-success"
             onClick={initGameWithRandom}
@@ -162,110 +180,27 @@ export default function Home() {
             Empty Board
           </button>
           <button className="btn btn-outline btn-success" onClick={evolveBoard}>
-            Next Gen
+            Evolve Board
           </button>
           <button
             className="btn btn-outline btn-success"
             onClick={() => setIsAuto((prevState) => !prevState)}
           >
-            {isAuto ? "Stop" : "Play"} Auto Run
+            {isAuto ? "Stop" : "Play"} Auto Evolve
           </button>
-          <div className="drawer">
-            <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-            <div className="drawer-content">
-              {/* Page content here */}
-              <label
-                htmlFor="my-drawer"
-                className="btn btn-primary drawer-button"
-              >
-                Games States
-              </label>
-            </div>
-            <div className="drawer-side">
-              <label
-                htmlFor="my-drawer"
-                aria-label="close sidebar"
-                className="drawer-overlay"
-              ></label>
-              <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-                <button
-                  className="btn btn-outline"
-                  onClick={async () => {
-                    try {
-                      await saveGame(rows, cols, livingCells);
-                      setSuccessMsg("Game State Saved Successfully!");
-                      await fetchAllSavedGames();
-                    } catch (error) {
-                      setErrorMsg("error: " + error);
-                    }
-                  }}
-                >
-                  <FontAwesomeIcon icon={faCirclePlus} className="m-0" />
-                  Save Game State
-                </button>
 
-                <div className="flex flex-col mt-6">
-                  {savedGames.map((item: string) => (
-                    <button
-                      onClick={async () => {
-                        const { livingCells, rows, cols } = await loadGameInfo(
-                          item
-                        );
-                        setCols(cols);
-                        setRows(rows);
-                        setLivingCells(new Set(livingCells));
-                      }}
-                      key={item}
-                      className="btn btn-outline"
-                    >
-                      {new Date(+item).toLocaleTimeString()}
-                    </button>
-                  ))}
-                </div>
-              </ul>
-            </div>
-          </div>
+          <ManageGamsStats
+            loadGameState={loadGameState}
+            saveGameState={saveGameState}
+            savedGames={savedGames}
+          />
         </div>
       </div>
       {errorMsg ? (
-        <div className="alert alert-error max-w-fit">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="stroke-current shrink-0 h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-
-          <span>Error! {errorMsg}</span>
-        </div>
+        <ErrorAlert errorMsg={errorMsg} setErrorMsg={setErrorMsg} />
       ) : rows > 0 && cols > 0 ? (
         <>
-          <div className="my-3 flex flex-row gap-6 justify-center">
-            <div className="alert alert-info max-w-fit">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                className="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-
-              <span>Click on the board cells for set the initiate state</span>
-            </div>
-          </div>
+          <div className="my-3 flex flex-row gap-6 justify-center"></div>
           {successMsg && (
             <div className="alert alert-success max-w-fit">{successMsg}</div>
           )}
