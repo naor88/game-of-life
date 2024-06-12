@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { generateMatrixKey, generateLivingCells } from "@/utils";
+import { generateMatrixKey } from "@/utils";
 import { Matrix } from "@/app/components/Matrix";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
@@ -29,13 +29,6 @@ export default function Home() {
   const initGameWithRandom = () => initiateGame(true);
   const initGameWithEmpty = () => initiateGame(false);
 
-  // const initiateGame = (useRandomCells = false) => {
-  //   const livingCells = useRandomCells
-  //     ? generateLivingCells(rows, cols, true)
-  //     : generateLivingCells(rows, cols, false);
-  //   setErrorMsg("");
-  //   setLivingCells(livingCells);
-  // };
 
   const initiateGame = async (useRandomCells = false) => {
     const { livingCells } = await initGame(rows, cols, useRandomCells);

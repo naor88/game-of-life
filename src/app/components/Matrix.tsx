@@ -70,8 +70,6 @@ export const Matrix: React.FC<MatrixProps> = ({
     const col = Math.floor(x / (cellSize + cellGap));
     const row = Math.floor(y / (cellSize + cellGap));
 
-    // onCellClick(row, col);
-    // console.log([row, col]);
     handleCellClick(row, col);
   };
 
