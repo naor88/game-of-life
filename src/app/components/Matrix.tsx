@@ -1,18 +1,24 @@
 import React, { useEffect, useRef } from "react";
-import { generateMatrixKey } from "../../utiles";
+import { generateMatrixKey } from "../../utils";
 
 interface MatrixProps {
   livingCells: Set<string>;
+  handleCellClick: (row: number, col: number) => void;
   rows: number;
   cols: number;
 }
-const cellSize = 2;
-const cellGap = 1;
+const cellSize = 10;
+const cellGap = 2;
 
 const cellHeight = cellSize + cellGap;
 const cellWeight = cellSize + cellGap;
 
-export const Matrix: React.FC<MatrixProps> = ({ livingCells, rows, cols }) => {
+export const Matrix: React.FC<MatrixProps> = ({
+  livingCells,
+  handleCellClick,
+  rows,
+  cols,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -52,13 +58,30 @@ export const Matrix: React.FC<MatrixProps> = ({ livingCells, rows, cols }) => {
     }
   }, [livingCells, rows, cols]);
 
+
+  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const col = Math.floor(x / (cellSize + cellGap));
+    const row = Math.floor(y / (cellSize + cellGap));
+
+    // onCellClick(row, col);
+    // console.log([row, col]);
+    handleCellClick(row, col);
+  };
+
   return (
     <canvas
-      className="flex flex-row justify-center"
+      className="flex flex-row justify-center my-5"
       ref={canvasRef}
       width={cols * cellHeight}
       height={rows * cellWeight}
-      style={{ border: "1px solid black" }}
+      onClick={handleCanvasClick}
     />
   );
 };

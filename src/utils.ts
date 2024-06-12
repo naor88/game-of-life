@@ -44,8 +44,9 @@ export const calcLivingNeighbors = (
   }, 0);
 };
 
-export const generateRandomLivingCells = (rows: number, cols: number): Set<string> => {
+export const generateLivingCells = (rows: number, cols: number, useRandom: boolean): Set<string> => {
   const livingCells = new Set<string>();
+  if(!useRandom) return livingCells;
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       if (Math.random() > 0.5) {
