@@ -1,6 +1,7 @@
-export const generateMatrixKey = (row: number, col: number): string => `${row},${col}`;
+export const generateMatrixKey = (row: number, col: number): string =>
+  `${row},${col}`;
 
-export  const coupleExists = (
+export const coupleExists = (
   livingCellsSet: Set<string>,
   row: number,
   col: number
@@ -44,9 +45,13 @@ export const calcLivingNeighbors = (
   }, 0);
 };
 
-export const generateLivingCells = (rows: number, cols: number, useRandom: boolean): Set<string> => {
+export const generateLivingCells = (
+  rows: number,
+  cols: number,
+  useRandom: boolean
+): Set<string> => {
   const livingCells = new Set<string>();
-  if(!useRandom) return livingCells;
+  if (!useRandom) return livingCells;
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       if (Math.random() > 0.5) {
@@ -55,4 +60,35 @@ export const generateLivingCells = (rows: number, cols: number, useRandom: boole
     }
   }
   return livingCells;
+};
+
+export const calcEvolveBoard = (
+  rows: number,
+  cols: number,
+  livingCells: Set<string>
+) => {
+  const newLivingCells = new Set<string>();
+
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      const livingNeighbors = calcLivingNeighbors(
+        livingCells,
+        i,
+        j,
+        rows,
+        cols
+      );
+      const key = generateMatrixKey(i, j);
+
+      if (livingCells.has(key)) {
+        if (livingNeighbors === 2 || livingNeighbors === 3) {
+          newLivingCells.add(key);
+        }
+      } else if (livingNeighbors === 3) {
+        newLivingCells.add(key);
+      }
+    }
+  }
+
+  return newLivingCells;
 };
