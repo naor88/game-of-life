@@ -38,7 +38,7 @@ export const ManageGamsStats = ({
           </button>
 
           <div className="flex flex-col mt-6">
-            {savedGames.map((item: string) => (
+            {savedGames.length>0 && savedGames.map((item: string) => (
               <button
                 onClick={() => loadGameState(item)}
                 key={item}
