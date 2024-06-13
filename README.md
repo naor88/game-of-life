@@ -49,4 +49,7 @@ data-type="inline"
 - Next.js: A React framework for building server-side rendered applications.
 - React: A JavaScript library for building user interfaces.
 - TypeScript: A typed superset of JavaScript that compiles to plain JavaScript.
+- TailwindCSS: A utility-first CSS framework for rapidly building custom user interfaces.
+- daisyUI: A set of components and utility classes for TailwindCSS.
 - better-sqlite3: A fast, simple, and efficient SQLite3 module for Node.js
+- jest: JavaScript testing framework designed to ensure correctness of any JavaScript codebase.
