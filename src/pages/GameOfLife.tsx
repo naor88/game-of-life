@@ -159,9 +159,6 @@ export default function Home() {
                 min="1"
               />
             </div>
-            <button type="submit" className="btn btn-primary">
-              Create Board
-            </button>
           </div>
         </form>
 
