@@ -1,4 +1,5 @@
-# Game Of Life - Home Assignment
+
+## <img src="docs/pattern.gif">   Game Of Life - Home Assignment
 
 ## Requirements
 
