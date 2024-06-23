@@ -12,15 +12,17 @@ The requirements for this project can be found in the document: [Home Assignment
    cd game-of-life
    ```
 2. Install the dependencies
+
    ```bash
    npm install
-   ````
+   ```
 
 3. Build
    ```bash
    npm run build
    ```
 4. Test
+
    ```bash
    npm run test
    ```
@@ -30,7 +32,12 @@ The requirements for this project can be found in the document: [Home Assignment
    npm run start
    ```
 
+## Demo
+
+Check out the live demo: [Game Of Life](https://game-of-life-nextjs.netlify.app)
+
 ## Record demo from the project:
+
 [<img src="docs/posterImage.png">](https://share.vidyard.com/watch/tguHY6jVbEsThzJgvuouko?)
 
 ## Technologies Used
