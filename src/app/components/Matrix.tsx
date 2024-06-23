@@ -13,6 +13,21 @@ const cellGap = 1;
 const cellHeight = cellSize + cellGap;
 const cellWeight = cellSize + cellGap;
 
+function drawCell(
+  ctx: CanvasRenderingContext2D,
+  row: number,
+  col: number,
+  color: string
+) {
+  ctx.fillStyle = color;
+  ctx.fillRect(
+    col * (cellSize + cellGap),
+    row * (cellSize + cellGap),
+    cellSize,
+    cellSize
+  );
+}
+
 export const Matrix: React.FC<MatrixProps> = ({
   livingCells,
   handleCellClick,
@@ -30,34 +45,22 @@ export const Matrix: React.FC<MatrixProps> = ({
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Draw living cells
     livingCells.forEach((key) => {
       const [row, col] = key.split(",").map(Number);
-      ctx.fillStyle = "yellow";
-      ctx.fillRect(
-        col * (cellSize + cellGap),
-        row * (cellSize + cellGap),
-        cellSize,
-        cellSize
-      );
+      drawCell(ctx, row, col, "yellow");
     });
 
-    // Fill non-living cells
+    // Draw non-living cells
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const key = generateMatrixKey(row, col);
         if (!livingCells.has(key)) {
-          ctx.fillStyle = "black";
-          ctx.fillRect(
-            col * (cellSize + cellGap),
-            row * (cellSize + cellGap),
-            cellSize,
-            cellSize
-          );
+          drawCell(ctx, row, col, "black");
         }
       }
     }
   }, [livingCells, rows, cols]);
-
 
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
