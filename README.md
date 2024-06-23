@@ -31,7 +31,7 @@ The requirements for this project can be found in the document: [Home Assignment
    ```
 
 ## Record demo from the project:
-[<img src="https://play.vidyard.com/tguHY6jVbEsThzJgvuouko.jpg">](https://share.vidyard.com/watch/tguHY6jVbEsThzJgvuouko?)
+[<img src="docs/posterImage.png">](https://share.vidyard.com/watch/tguHY6jVbEsThzJgvuouko?)
 
 ## Technologies Used
 
