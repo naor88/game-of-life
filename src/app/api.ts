@@ -1,4 +1,4 @@
-const SERVER_PORT = 3000;
+const SERVER_PORT = process.env.PORT;
 const SERVER_BASE_URL = `http://localhost:${SERVER_PORT}`;
 
 export const getAllSavedGames = async () => {
