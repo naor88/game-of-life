@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Game Of Life",
   description: "Finonex Home Assignment",
+  icons: {
+    icon: '/icon.png',
+  }
 };
 
 export default function RootLayout({
