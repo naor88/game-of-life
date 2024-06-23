@@ -1,5 +1,5 @@
-const SERVER_PORT = process.env.PORT;
-const SERVER_BASE_URL = `http://localhost:${SERVER_PORT}`;
+// const SERVER_PORT = process.env.PORT;
+const SERVER_BASE_URL = ''; //`${process.env.NEXT_PUBLIC_URL}:${SERVER_PORT}`;
 
 export const getAllSavedGames = async () => {
   try {
